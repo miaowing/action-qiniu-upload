@@ -5,14 +5,16 @@ import pAll from 'p-all';
 import pRetry from 'p-retry';
 
 function normalizePath(input: string): string {
-  return input.replace(/^\//, '');
+  return input
+    .replace(/^\//, '')
+    .replace(/\\/g, '/');
 }
 
 export function upload(
   token: string,
   srcDir: string,
   destDir: string,
-  ignoreSourceMap: boolean,
+  ignore: string,
   onProgress: (srcFile: string, destFile: string) => void,
   onComplete: () => void,
   onFail: (errorInfo: any) => void,
@@ -27,7 +29,9 @@ export function upload(
     const relativePath = path.relative(baseDir, path.dirname(file));
     const key = normalizePath(path.join(destDir, relativePath, path.basename(file)));
 
-    if (ignoreSourceMap && file.endsWith('.map')) return null;
+    if (ignore && new RegExp(ignore).test(file)) {
+      return null;
+    }
 
     const task = (): Promise<any> => new Promise((resolve, reject) => {
       const putExtra = new qiniu.form_up.PutExtra();
@@ -36,7 +40,10 @@ export function upload(
 
         if (info.statusCode === 200) {
           onProgress(file, key);
-          return resolve({ file, to: key });
+          return resolve({
+            file,
+            to: key,
+          });
         }
 
         reject(new Error(`Upload failed: ${file}`));
@@ -44,7 +51,8 @@ export function upload(
     });
 
     return () => pRetry(task, { retries: 3 });
-  }).filter((item) => !!item) as (() => Promise<any>)[];
+  })
+    .filter((item) => !!item) as (() => Promise<any>)[];
 
   pAll(tasks, { concurrency: 5 })
     .then(onComplete)

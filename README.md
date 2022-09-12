@@ -38,9 +38,9 @@ jobs:
         # Default: '/'
         dest_dir: '/static'
 
-        # Whether to ignore source maps.
-        # Default: true
-        ignore_source_map: true
+        # Whether to ignore some files, regexp.
+        # Default: ''
+        ignore: ''
 ```
 
 ## License

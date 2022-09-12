@@ -23,9 +23,9 @@ inputs:
   #   description: 'overwrite the file of same key in bucket'
   #   default: true
   #   required: false
-  ignore_source_map:
-    description: 'ignore source maps'
-    default: true
+  ignore:
+    description: 'ignore regexp'
+    default: ''
     required: false
 runs:
   using: 'node12'

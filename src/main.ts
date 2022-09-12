@@ -9,7 +9,7 @@ async function run(): Promise<void> {
     const bucket = core.getInput('bucket');
     const sourceDir = core.getInput('source_dir');
     const destDir = core.getInput('dest_dir');
-    const ignoreSourceMap = core.getInput('ignore_source_map') === 'true';
+    const ignore = core.getInput('ignore');
 
     const token = genToken(bucket, ak, sk);
 
@@ -17,7 +17,7 @@ async function run(): Promise<void> {
       token,
       sourceDir,
       destDir,
-      ignoreSourceMap,
+      ignore,
       (file, key) => core.info(`Success: ${file} => [${bucket}]: ${key}`),
       () => core.info('Done!'),
       (error) => core.setFailed(error.message),
