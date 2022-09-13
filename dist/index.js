@@ -38990,7 +38990,7 @@ function upload(token, srcDir, destDir, ignore, onProgress, onComplete, onFail) 
             const putExtra = new qiniu_1.default.form_up.PutExtra();
             uploader.putFile(token, key, file, putExtra, (err, body, info) => {
                 if (err)
-                    return reject(new Error(`Upload failed: ${file}`));
+                    return reject(new Error(`Upload failed: ${file} ${err}`));
                 if (info.statusCode === 200) {
                     onProgress(file, key);
                     return resolve({
@@ -38998,7 +38998,7 @@ function upload(token, srcDir, destDir, ignore, onProgress, onComplete, onFail) 
                         to: key,
                     });
                 }
-                reject(new Error(`Upload failed: ${file}`));
+                reject(new Error(`Upload failed: ${file} ${JSON.stringify(body)}`));
             });
         });
         return () => p_retry_1.default(task, { retries: 3 });
@@ -51579,12 +51579,13 @@ address.interface = function (family, name) {
   }
 
   if (noName) {
-    // filter 127.0.0.1, get the first ip
+    // filter all loopback or local addresses
     for (var k in interfaces) {
       var items = interfaces[k];
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
-        if (matchName(item.family, family) && item.address !== '127.0.0.1') {
+        // all 127 addresses are local and should be ignored
+        if (matchName(item.family, family) && !item.address.startsWith('127.')) {
           return item;
         }
       }

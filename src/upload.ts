@@ -36,7 +36,7 @@ export function upload(
     const task = (): Promise<any> => new Promise((resolve, reject) => {
       const putExtra = new qiniu.form_up.PutExtra();
       uploader.putFile(token, key, file, putExtra, (err, body, info) => {
-        if (err) return reject(new Error(`Upload failed: ${file}`));
+        if (err) return reject(new Error(`Upload failed: ${file} ${err}`));
 
         if (info.statusCode === 200) {
           onProgress(file, key);
@@ -46,7 +46,7 @@ export function upload(
           });
         }
 
-        reject(new Error(`Upload failed: ${file}`));
+        reject(new Error(`Upload failed: ${file} ${JSON.stringify(body)}`));
       });
     });
 
